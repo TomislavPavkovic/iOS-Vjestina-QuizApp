@@ -69,7 +69,7 @@ Please try again
         
         //self.backgroundColor = .clear
         label.textColor = .white
-        label.font = UIFont.boldSystemFont(ofSize: 40.0)
+        label.font = UIFont.boldSystemFont(ofSize: 30.0)
         
         button.backgroundColor = .white
         button.isEnabled = true
@@ -90,22 +90,22 @@ Please try again
     private func defineLayoutForViews() {
         button.snp.makeConstraints {
             $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.top.equalTo(label.snp.bottom).offset(30)
-            $0.width.equalTo(80*UIScreen.main.bounds.width/100)
+            $0.top.equalTo(self.safeAreaLayoutGuide).offset(10)
+            $0.width.equalTo(safeAreaLayoutGuide).multipliedBy(0.8)
             $0.height.equalTo(40)
         }
-        label.snp.makeConstraints {
+        /*label.snp.makeConstraints {
             $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.top.equalTo(self.safeAreaLayoutGuide).offset(30)
-        }
+            $0.centerY.equalTo(self.safeAreaLayoutGuide).multipliedBy(0.2)
+        }*/
         funFactLabel.snp.makeConstraints {
-            $0.top.equalTo(button.snp.bottom).offset(30)
-            $0.leading.equalTo(self.safeAreaInsets).offset(10)
+            $0.top.equalTo(button.snp.bottom).offset(15)
+            $0.leading.equalTo(self.safeAreaLayoutGuide).offset(10)
         }
         factTextLabel.snp.makeConstraints {
             $0.top.equalTo(funFactLabel.snp.bottom).offset(5)
-            $0.leading.equalTo(self.safeAreaInsets).offset(10)
-            $0.trailing.equalTo(self.safeAreaInsets).offset(-10)
+            $0.leading.equalTo(self.safeAreaLayoutGuide).offset(10)
+            $0.trailing.equalTo(self.safeAreaLayoutGuide).offset(-10)
         }
         errorLabel.snp.makeConstraints{
             $0.center.equalToSuperview()

@@ -12,17 +12,33 @@ class QuizzesViewController: UIViewController {
     private var tableView: UITableView!
     private var quizzesView: QuizzesView!
     private let cellIdentifier = "cellId"
-    private var quizzes: [Quiz] = []
+    private var quizzes: [[Quiz]]!
     private var catNum: Int = 0
     private var categories: [QuizCategory] = []
     private var cellId: Int = 0
     private var gradientLayer: CAGradientLayer!
+    private var router: AppRouter!
+    
+    convenience init(router: AppRouter) {
+        self.init()
+        self.router = router
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         quizzesView = QuizzesView()
         buildViews()
         quizzesView.button.addTarget(self , action: #selector(QuizzesViewController.buttonPressed(_:)), for: .touchUpInside)
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+        tableView?.backgroundColor = .clear
+    }
+    
     private func buildViews() {
         gradientLayer = CAGradientLayer()
         gradientLayer.colors = [UIColor.purple.cgColor, CGColor(red: 0.20, green: 0.12, blue: 0.5, alpha: 1)]
@@ -32,8 +48,14 @@ class QuizzesViewController: UIViewController {
         gradientLayer.frame = view.bounds
         view.layer.addSublayer(gradientLayer)
         view.addSubview(quizzesView)
-        quizzesView.frame = view.frame
+        quizzesView.frame = view.bounds
         
+        tabBarController?.navigationItem.titleView = quizzesView.label
+    }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        gradientLayer.frame = view.bounds
+        quizzesView.frame = view.bounds
     }
 }
 
@@ -43,26 +65,26 @@ extension QuizzesViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return quizzes.filter{$0.category == categories[section]}.count
+        return quizzes[section].count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: UITableViewCell  = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath)
+        let cell: UITableViewCell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath)
         var cellConfig: UIListContentConfiguration = cell.defaultContentConfiguration()
         cellConfig.textProperties.color = .white
         cell.contentConfiguration = cellConfig
         cell.backgroundColor = .clear
+        cell.selectionStyle = .none
         
-        let quizField = QuizField(frame: self.accessibilityFrame, title: quizzes[cellId].title, desc: quizzes[cellId].description, lvl: quizzes[cellId].level, image: UIImage(named: "sport_quiz")!)
-        if cellId<catNum {
-            cellId+=1
-        }
-        cell.addSubview(quizField)
-        quizField.snp.makeConstraints {
-            $0.top.leading.equalToSuperview().offset(10)
-            $0.bottom.trailing.equalToSuperview().offset(-10)
-        }
         
+        if (cell.subviews.filter{$0 is QuizField}.count == 0) {
+            let field = QuizField(frame: self.accessibilityFrame, title: quizzes[indexPath.section][indexPath.row].title, desc: quizzes[indexPath.section][indexPath.row].description, lvl: quizzes[indexPath.section][indexPath.row].level, image: UIImage(named: "sport_quiz")!)
+            cell.addSubview(field)
+            field.snp.makeConstraints {
+                $0.top.leading.equalToSuperview().offset(10)
+                $0.bottom.trailing.equalToSuperview().offset(-10)
+            }
+        }
         return cell
     }
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -75,32 +97,57 @@ extension QuizzesViewController: UITableViewDataSource {
             header.backgroundView?.backgroundColor = .clear
             header.textLabel?.textColor = .white
     }*/
-    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 25))
+        returnedView.backgroundColor = .clear
+
+        let label = UILabel(frame: CGRect(x: 10, y: 2, width: view.frame.size.width, height: 25))
+        label.text = categories[section].rawValue
+        label.textColor = .white
+        label.font = UIFont.boldSystemFont(ofSize: 20)
+        returnedView.addSubview(label)
+
+        return returnedView
+    }
     @objc func buttonPressed(_ button: UIButton) {
         quizzesView.errorLabel.isHidden = true
         quizzesView.errorMessageLabel.isHidden = true
         
         cellId = 0
-        quizzes = DataService().fetchQuizes()
-        categories = unique(source: quizzes.map{$0.category})
+        let quizzesTemp = DataService().fetchQuizes()
+        categories = unique(source: quizzesTemp.map{$0.category})
         catNum = categories.count
+        quizzes = Array(repeating: [], count: catNum)
+        var index = 0
+        for category in categories {
+            quizzes[index].append(contentsOf: quizzesTemp.filter{$0.category == category})
+            index += 1
+        }
         
-        tableView = UITableView(
-            frame: CGRect(
-                x: 0,
-                y: 320,
-                width: view.bounds.width,
-                height: view.bounds.height
-            )
-        )
-        view.addSubview(tableView)
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
-        tableView.dataSource = self
-        tableView.layer.backgroundColor = UIColor.clear.cgColor
-        tableView.rowHeight = 150
+        if(tableView == nil){
+            tableView = UITableView()
+            tableView.frame = view.bounds
+            view.addSubview(tableView)
+            tableView.snp.makeConstraints{
+                $0.top.equalTo(quizzesView.factTextLabel.snp.bottom).offset(15)
+                $0.leading.equalTo(view.safeAreaLayoutGuide)
+                $0.width.equalTo(view.safeAreaLayoutGuide)
+                $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            }
+            tableView.delegate = self
+            tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
+            tableView.dataSource = self
+            tableView.layer.backgroundColor = UIColor.clear.cgColor
+            tableView.rowHeight = 150
+        } else {
+            tableView.reloadData()
+        }
+        
         
         quizzesView.funFactLabel.isHidden = false
-        quizzesView.factTextLabel.text = String(format: "%@ %d %@", "There are", quizzes.flatMap{$0.questions}.filter{$0.question.contains("NBA")}.count, "questions that contain the word NBA")
+        quizzesView.factTextLabel.text = String(format: "%@ %d %@", "There are", quizzesTemp.flatMap{$0.questions}
+                    .filter{$0.question.contains("NBA")}
+                    .count, "questions that contain the word NBA")
         quizzesView.factTextLabel.isHidden = false
     }
     
@@ -118,3 +165,8 @@ extension QuizzesViewController: UITableViewDataSource {
     }
 }
 
+extension QuizzesViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        router.showQuizViewController(quiz: quizzes[indexPath.section][indexPath.row])
+    }
+}

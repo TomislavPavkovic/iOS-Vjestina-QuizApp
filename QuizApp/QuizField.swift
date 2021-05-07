@@ -15,18 +15,18 @@ class QuizField: UIView {
     var lvlLabel: UILabel!
     var quizImage: UIImageView!
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        self.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 0.3)
-        self.layer.cornerRadius = 20
-        createViews(title: "Blank", desc: "Blank", lvl: 1, image: UIImage(named: "visibility_on")!)
-        styleViews()
-        defineLayoutForViews()
-    }
+    
     
     init(frame: CGRect, title: String, desc: String, lvl: Int, image: UIImage) {
         super.init(frame: frame)
         self.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 0.3)
+        self.layer.cornerRadius = 20
+        createViews(title: title, desc: desc, lvl: lvl, image: image)
+        styleViews()
+        defineLayoutForViews()
+    }
+    
+    func initial(frame: CGRect, title: String, desc: String, lvl: Int, image: UIImage) {        self.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 0.3)
         self.layer.cornerRadius = 20
         createViews(title: title, desc: desc, lvl: lvl, image: image)
         styleViews()
