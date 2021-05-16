@@ -17,12 +17,16 @@ class QuizViewController: UIViewController {
     private var question: Question!
     private var questionNum: Int = 0
     private var correct: Int = 0
+    private var start: DispatchTime!
+    private var presenter: QuizPresenter!
     
     convenience init(router: AppRouter, quiz: Quiz) {
         self.init()
         self.router = router
         self.quiz = quiz
         question = quiz.questions[questionNum]
+        presenter = QuizPresenter(router: router)
+        start = DispatchTime.now()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,8 +82,10 @@ class QuizViewController: UIViewController {
                 self.quizView.questionsTrackerView.views[self.questionNum-1].alpha = 0.6
             }
         } else {
+            let end = DispatchTime.now()
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.router.showQuizResultViewController(correct: self.correct, questionsNum: self.quiz.questions.count)
+                self.presenter.sendResults(quizId: self.quiz.id, start: self.start, end: end, correct: self.correct)
+                self.presenter.changeViewController(correct: self.correct, questionsNum: self.quiz.questions.count)
             }
         }
         

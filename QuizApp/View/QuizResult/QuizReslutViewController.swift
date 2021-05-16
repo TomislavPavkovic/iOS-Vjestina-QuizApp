@@ -13,14 +13,18 @@ class QuizResultViewController: UIViewController {
     private var quizResultView: QuizResultView!
     private var gradientLayer: CAGradientLayer!
     private var router: AppRouter!
-    private var correct: Int!
-    private var questionsNum: Int!
+    private var correct: Int
+    private var questionsNum: Int
     
-    convenience init(router: AppRouter, correct: Int, questionsNum: Int) {
-        self.init()
+    init(router: AppRouter, correct: Int, questionsNum: Int) {
         self.router = router
         self.correct = correct
         self.questionsNum = questionsNum
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override func viewDidLoad() {
@@ -33,7 +37,7 @@ class QuizResultViewController: UIViewController {
         gradientLayer.frame = view.bounds
         view.layer.insertSublayer(gradientLayer, at: 0)
         
-        quizResultView = QuizResultView(frame: view.bounds, score: "\(correct!)/\(questionsNum!)")
+        quizResultView = QuizResultView(frame: view.bounds, score: "\(correct)/\(questionsNum)")
         view.addSubview(quizResultView)
         
         quizResultView.finishButton.addTarget(self, action: #selector(QuizResultViewController.buttonPressed(_:)), for: .touchUpInside)

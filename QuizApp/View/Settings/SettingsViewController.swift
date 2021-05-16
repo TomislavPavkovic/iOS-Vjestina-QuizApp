@@ -30,7 +30,7 @@ class SettingsViewController: UIViewController {
         view.layer.insertSublayer(gradientLayer, at: 0)
         buildViews()
         
-        settingsView.logOutButton.addTarget(self, action: #selector(QuizResultViewController.buttonPressed(_:)), for: .touchUpInside)
+        settingsView.logOutButton.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
     }
     
     override func viewWillAppear(_ animated: Bool) {

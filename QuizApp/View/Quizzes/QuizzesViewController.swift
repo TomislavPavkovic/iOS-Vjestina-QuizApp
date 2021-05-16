@@ -18,10 +18,12 @@ class QuizzesViewController: UIViewController {
     private var cellId: Int = 0
     private var gradientLayer: CAGradientLayer!
     private var router: AppRouter!
+    private var presenter: QuizzesPresenter!
     
     convenience init(router: AppRouter) {
         self.init()
         self.router = router
+        presenter = QuizzesPresenter(router: router)
     }
     
     override func viewDidLoad() {
@@ -109,64 +111,49 @@ extension QuizzesViewController: UITableViewDataSource {
 
         return returnedView
     }
+    
     @objc func buttonPressed(_ button: UIButton) {
         quizzesView.errorLabel.isHidden = true
         quizzesView.errorMessageLabel.isHidden = true
         
         cellId = 0
-        let quizzesTemp = DataService().fetchQuizes()
-        categories = unique(source: quizzesTemp.map{$0.category})
-        catNum = categories.count
-        quizzes = Array(repeating: [], count: catNum)
-        var index = 0
-        for category in categories {
-            quizzes[index].append(contentsOf: quizzesTemp.filter{$0.category == category})
-            index += 1
-        }
-        
-        if(tableView == nil){
-            tableView = UITableView()
-            tableView.frame = view.bounds
-            view.addSubview(tableView)
-            tableView.snp.makeConstraints{
-                $0.top.equalTo(quizzesView.factTextLabel.snp.bottom).offset(15)
-                $0.leading.equalTo(view.safeAreaLayoutGuide)
-                $0.width.equalTo(view.safeAreaLayoutGuide)
-                $0.bottom.equalTo(view.safeAreaLayoutGuide)
-            }
-            tableView.delegate = self
-            tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
-            tableView.dataSource = self
-            tableView.layer.backgroundColor = UIColor.clear.cgColor
-            tableView.rowHeight = 150
-        } else {
-            tableView.reloadData()
-        }
-        
-        
-        quizzesView.funFactLabel.isHidden = false
-        quizzesView.factTextLabel.text = String(format: "%@ %d %@", "There are", quizzesTemp.flatMap{$0.questions}
-                    .filter{$0.question.contains("NBA")}
-                    .count, "questions that contain the word NBA")
-        quizzesView.factTextLabel.isHidden = false
-    }
-    
-    //funkcija unique preuzeta sa stackoverflow-a
-    func unique<S : Sequence, T : Hashable>(source: S) -> [T] where S.Iterator.Element == T {
-        var buffer = [T]()
-        var added = Set<T>()
-        for elem in source {
-            if !added.contains(elem) {
-                buffer.append(elem)
-                added.insert(elem)
+        presenter.fetchQuizzes() { [self] result in
+            if let result = result {
+                quizzes = result.0
+                categories = result.1
+                catNum = result.2
+                
+                
+                if(tableView == nil){
+                    tableView = UITableView()
+                    tableView.frame = view.bounds
+                    view.addSubview(tableView)
+                    tableView.snp.makeConstraints{
+                        $0.top.equalTo(quizzesView.factTextLabel.snp.bottom).offset(15)
+                        $0.leading.equalTo(view.safeAreaLayoutGuide)
+                        $0.width.equalTo(view.safeAreaLayoutGuide)
+                        $0.bottom.equalTo(view.safeAreaLayoutGuide)
+                    }
+                    tableView.delegate = self
+                    tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
+                    tableView.dataSource = self
+                    tableView.layer.backgroundColor = UIColor.clear.cgColor
+                    tableView.rowHeight = 150
+                } else {
+                    tableView.reloadData()
+                }
+                quizzesView.funFactLabel.isHidden = false
+                quizzesView.factTextLabel.text = String(format: "%@ %d %@", "There are", quizzes.flatMap{$0}.flatMap{$0.questions}
+                            .filter{$0.question.contains("NBA")}
+                            .count, "questions that contain the word NBA")
+                quizzesView.factTextLabel.isHidden = false
             }
         }
-        return buffer
     }
 }
 
 extension QuizzesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        router.showQuizViewController(quiz: quizzes[indexPath.section][indexPath.row])
+        presenter.changeViewController(quiz: quizzes[indexPath.section][indexPath.row])
     }
 }

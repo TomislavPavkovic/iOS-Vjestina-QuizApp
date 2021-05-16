@@ -40,8 +40,8 @@ class LoginViewController: UIViewController {
         loginView.button.addTarget(self , action: #selector(LoginViewController.buttonPressed(_:)), for: .touchUpInside)
         loginView.visibleButton.addTarget(self, action: #selector(LoginViewController.visibilityChanged), for: .touchUpInside)
         buildViews()
-        
     }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
@@ -60,6 +60,7 @@ class LoginViewController: UIViewController {
         view.addSubview(loginView)
         loginView.frame = view.bounds
     }
+    
     @objc func textFieldSelected(_ textField: TextField) {
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.white.cgColor
@@ -68,6 +69,7 @@ class LoginViewController: UIViewController {
     @objc func textFieldNotSelected(_ textField: TextField) {
         textField.layer.borderWidth = 0
     }
+    
     @objc func textFieldChanged(_ textField: TextField) {
         if loginView.emailField.text != "" && loginView.passwordField.text != "" {
             loginView.button.alpha = 1
@@ -79,20 +81,24 @@ class LoginViewController: UIViewController {
         }
         loginView.errorLabel.isHidden = true
     }
+    
     @objc func buttonPressed(_ button: UIButton) {
-        let status = DataService().login(email: loginView.emailField.text!, password: loginView.passwordField.text!)
-        switch status {
-        case .success:
-            print("Email: ", loginView.emailField.text!)
-            print("Password: ", loginView.passwordField.text!)
-            router.showQuizzesViewControllerAsRoot()
-        default:
-            print(status)
-            loginView.errorLabel.text = "Email or password is incorrect!"
-            loginView.errorLabel.isHidden = false
+        LoginPresenter(router: router).login(username: loginView.emailField.text!, password: loginView.passwordField.text!) { [self]
+            status in
+            if let status = status {
+                switch status {
+                case .success:
+                    print("Email: ", loginView.emailField.text!)
+                    print("Password: ", loginView.passwordField.text!)
+                default:
+                    print(status)
+                    loginView.errorLabel.text = "Email or password is incorrect!"
+                    loginView.errorLabel.isHidden = false
+                }
+            }
         }
-           
     }
+    
     @objc func visibilityChanged(_ button: UIButton) {
         if loginView.passwordField.isSecureTextEntry == true {
             button.setImage(UIImage(named: "visibility_on"), for: .normal)
