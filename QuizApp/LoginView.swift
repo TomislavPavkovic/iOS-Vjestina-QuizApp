@@ -82,30 +82,29 @@ class LoginView: UIView {
     private func defineLayoutForViews() {
         
         button.snp.makeConstraints {
-            $0.center.equalTo(self.safeAreaLayoutGuide)
-            $0.width.equalTo(80*UIScreen.main.bounds.width/100)
+            $0.centerX.equalTo(self.safeAreaLayoutGuide)
+            $0.width.equalTo(self.safeAreaLayoutGuide).multipliedBy(0.8)
             $0.height.equalTo(40)
+            $0.top.equalTo(passwordField.snp.bottom).offset(15)
         }
         label.snp.makeConstraints {
             $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.top.equalTo(self.safeAreaLayoutGuide).offset(100)
-            
+            $0.centerY.equalTo(emailField.snp.top).multipliedBy(0.5)
         }
         emailField.snp.makeConstraints {
             $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.width.equalTo(80*UIScreen.main.bounds.width/100)
+            $0.width.equalTo(self.safeAreaLayoutGuide).multipliedBy(0.8)
             $0.height.equalTo(40)
             $0.bottom.equalTo(passwordField.snp.top).offset(-15)
         }
         passwordField.snp.makeConstraints {
-            $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.width.equalTo(80*UIScreen.main.bounds.width/100)
+            $0.width.equalTo(self.safeAreaLayoutGuide).multipliedBy(0.8)
             $0.height.equalTo(40)
-            $0.bottom.equalTo(button.snp.top).offset(-15)
+            $0.center.equalTo(self.safeAreaLayoutGuide)
         }
         errorLabel.snp.makeConstraints {
             $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.width.equalTo(80*UIScreen.main.bounds.width/100)
+            $0.width.equalTo(self.safeAreaLayoutGuide).multipliedBy(0.8)
             $0.height.equalTo(40)
             $0.top.equalTo(button.snp.bottom).offset(15)
         }

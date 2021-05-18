@@ -13,6 +13,13 @@ import SnapKit
 class LoginViewController: UIViewController {
     private var loginView: LoginView!
     private var gradientLayer: CAGradientLayer!
+    private var router: AppRouter!
+    
+    convenience init(router: AppRouter) {
+        self.init()
+        self.router = router
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         gradientLayer = CAGradientLayer()
@@ -21,7 +28,7 @@ class LoginViewController: UIViewController {
         gradientLayer.endPoint = CGPoint(x: 0, y: 1)
         
         gradientLayer.frame = view.bounds
-        view.layer.addSublayer(gradientLayer)
+        view.layer.insertSublayer(gradientLayer, at: 0)
         
         loginView = LoginView()
         loginView.passwordField.addTarget(self, action: #selector(LoginViewController.textFieldSelected(_:)), for: .editingDidBegin)
@@ -33,10 +40,25 @@ class LoginViewController: UIViewController {
         loginView.button.addTarget(self , action: #selector(LoginViewController.buttonPressed(_:)), for: .touchUpInside)
         loginView.visibleButton.addTarget(self, action: #selector(LoginViewController.visibilityChanged), for: .touchUpInside)
         buildViews()
+        
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        gradientLayer.frame = view.bounds
+        loginView.frame = view.bounds
+    }
+    
     private func buildViews() {
         view.addSubview(loginView)
-        loginView.frame = view.frame
+        loginView.frame = view.bounds
     }
     @objc func textFieldSelected(_ textField: TextField) {
         textField.layer.borderWidth = 1
@@ -63,6 +85,7 @@ class LoginViewController: UIViewController {
         case .success:
             print("Email: ", loginView.emailField.text!)
             print("Password: ", loginView.passwordField.text!)
+            router.showQuizzesViewControllerAsRoot()
         default:
             print(status)
             loginView.errorLabel.text = "Email or password is incorrect!"
