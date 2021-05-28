@@ -15,8 +15,8 @@ class QuizView: UIView {
     var buttons = [UIButton]()
     var questionsTrackerView: QuestionTrackerView!
     
-    init(frame: CGRect, text: String, answers: [String], questionsNum: Int) {
-        super.init(frame: frame)
+    init(text: String, answers: [String], questionsNum: Int) {
+        super.init(frame: CGRect.init())
         createViews(text: text, answers: answers, questionsNum: questionsNum)
         styleViews()
         defineLayoutForViews()
@@ -50,7 +50,7 @@ class QuizView: UIView {
             addSubview(buttons[i])
             i += 1
         }
-        questionsTrackerView = QuestionTrackerView(frame: bounds, questionsNum: questionsNum)
+        questionsTrackerView = QuestionTrackerView(questionsNum: questionsNum)
         addSubview(questionsTrackerView)
     }
     func styleViews(){

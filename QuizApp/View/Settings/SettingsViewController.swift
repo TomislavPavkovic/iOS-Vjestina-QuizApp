@@ -1,5 +1,5 @@
 //
-//  QuizReslutViewController.swift
+//  SettingsViewController.swift
 //  QuizApp
 //
 //  Created by Five on 05.05.2021..
@@ -9,18 +9,15 @@ import Foundation
 import UIKit
 import SnapKit
 
-class QuizResultViewController: UIViewController {
-    private var quizResultView: QuizResultView!
+class SettingsViewController: UIViewController {
+    private var settingsView: SettingsView!
     private var gradientLayer: CAGradientLayer!
     private var router: AppRouter!
-    private var correct: Int!
-    private var questionsNum: Int!
+    private var presenter: SettingsPresenter!
     
-    convenience init(router: AppRouter, correct: Int, questionsNum: Int) {
+    convenience init(router: AppRouter) {
         self.init()
-        self.router = router
-        self.correct = correct
-        self.questionsNum = questionsNum
+        self.presenter = SettingsPresenter(router: router)
     }
     
     override func viewDidLoad() {
@@ -32,17 +29,9 @@ class QuizResultViewController: UIViewController {
         
         gradientLayer.frame = view.bounds
         view.layer.insertSublayer(gradientLayer, at: 0)
+        buildViews()
         
-        quizResultView = QuizResultView(frame: view.bounds, score: "\(correct!)/\(questionsNum!)")
-        view.addSubview(quizResultView)
-        
-        quizResultView.finishButton.addTarget(self, action: #selector(QuizResultViewController.buttonPressed(_:)), for: .touchUpInside)
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        gradientLayer.frame = view.bounds
-        quizResultView.frame = view.bounds
+        settingsView.logOutButton.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -51,10 +40,23 @@ class QuizResultViewController: UIViewController {
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.isTranslucent = true
-        navigationItem.setHidesBackButton(true, animated: false)
+    }
+
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        gradientLayer.frame = view.bounds
+    }
+    
+    func buildViews(){
+        settingsView = SettingsView(username: "Tomislav Pavković")
+        view.addSubview(settingsView)
+        settingsView.snp.makeConstraints{
+            $0.top.bottom.leading.trailing.equalToSuperview()
+        }
     }
     
     @objc func buttonPressed(_ button: UIButton){
-        router.returnToRootViewController()
+        presenter.changeViewController()
     }
 }

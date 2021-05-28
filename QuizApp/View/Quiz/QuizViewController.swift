@@ -17,12 +17,16 @@ class QuizViewController: UIViewController {
     private var question: Question!
     private var questionNum: Int = 0
     private var correct: Int = 0
+    private var start: DispatchTime!
+    private var presenter: QuizPresenter!
     
     convenience init(router: AppRouter, quiz: Quiz) {
         self.init()
         self.router = router
         self.quiz = quiz
         question = quiz.questions[questionNum]
+        presenter = QuizPresenter(router: router)
+        start = DispatchTime.now()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,13 +52,16 @@ class QuizViewController: UIViewController {
         gradientLayer.frame = view.bounds
         view.layer.addSublayer(gradientLayer)
         
-        quizView = QuizView(frame: view.frame, text: question.question, answers: question.answers, questionsNum: quiz.questions.count)
+        quizView = QuizView(text: question.question, answers: question.answers, questionsNum: quiz.questions.count)
         view.addSubview(quizView)
+        
+        quizView.snp.makeConstraints{
+            $0.top.bottom.leading.trailing.equalToSuperview()
+        }
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         gradientLayer.frame = view.bounds
-        quizView.frame = view.bounds
     }
     
     @objc func buttonPressed(_ button: UIButton){
@@ -78,8 +85,10 @@ class QuizViewController: UIViewController {
                 self.quizView.questionsTrackerView.views[self.questionNum-1].alpha = 0.6
             }
         } else {
+            let end = DispatchTime.now()
+            presenter.sendResults(quizId: quiz.id, start: start, end: end, correct: correct)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.router.showQuizResultViewController(correct: self.correct, questionsNum: self.quiz.questions.count)
+                self.presenter.changeViewController(correct: self.correct, questionsNum: self.quiz.questions.count)
             }
         }
         

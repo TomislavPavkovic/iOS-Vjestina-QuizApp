@@ -13,8 +13,8 @@ class QuizResultView: UIView {
     var result: UILabel!
     var finishButton: UIButton!
     
-    init(frame: CGRect, score: String){
-        super.init(frame: frame)
+    init(score: String){
+        super.init(frame: CGRect.init())
         createViews(score: score)
         styleViews()
         defineLayoutForViews()

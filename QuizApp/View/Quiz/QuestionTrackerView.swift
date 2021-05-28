@@ -12,8 +12,8 @@ import SnapKit
 class QuestionTrackerView: UIView {
     var views = [UIView]()
     
-    init(frame: CGRect, questionsNum: Int){
-        super.init(frame: frame)
+    init(questionsNum: Int){
+        super.init(frame: CGRect.init())
         createViews(questionsNum: questionsNum)
         styleViews()
         defineLayoutForViews()
