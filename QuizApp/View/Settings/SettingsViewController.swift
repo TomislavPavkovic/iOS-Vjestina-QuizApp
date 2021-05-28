@@ -13,10 +13,11 @@ class SettingsViewController: UIViewController {
     private var settingsView: SettingsView!
     private var gradientLayer: CAGradientLayer!
     private var router: AppRouter!
+    private var presenter: SettingsPresenter!
     
     convenience init(router: AppRouter) {
         self.init()
-        self.router = router
+        self.presenter = SettingsPresenter(router: router)
     }
     
     override func viewDidLoad() {
@@ -45,15 +46,17 @@ class SettingsViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         gradientLayer.frame = view.bounds
-        settingsView.frame = view.bounds
     }
     
     func buildViews(){
-        settingsView = SettingsView(frame: view.bounds, username: "Tomislav Pavković")
+        settingsView = SettingsView(username: "Tomislav Pavković")
         view.addSubview(settingsView)
+        settingsView.snp.makeConstraints{
+            $0.top.bottom.leading.trailing.equalToSuperview()
+        }
     }
     
     @objc func buttonPressed(_ button: UIButton){
-        router.showLoginViewControllerAsRoot()
+        presenter.changeViewController()
     }
 }

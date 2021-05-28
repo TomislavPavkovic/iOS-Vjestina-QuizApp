@@ -14,8 +14,8 @@ class SettingsView: UIView {
     var usernameContent: UILabel!
     var logOutButton: UIButton!
     
-    init(frame: CGRect, username: String){
-        super.init(frame: frame)
+    init(username: String){
+        super.init(frame: CGRect.init())
         createViews(username: username)
         styleViews()
         defineLayoutForViews()

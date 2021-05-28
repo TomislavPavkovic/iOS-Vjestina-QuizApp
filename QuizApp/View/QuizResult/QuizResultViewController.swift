@@ -12,14 +12,14 @@ import SnapKit
 class QuizResultViewController: UIViewController {
     private var quizResultView: QuizResultView!
     private var gradientLayer: CAGradientLayer!
-    private var router: AppRouter!
     private var correct: Int
     private var questionsNum: Int
+    private var presenter: QuizResultPresenter!
     
     init(router: AppRouter, correct: Int, questionsNum: Int) {
-        self.router = router
         self.correct = correct
         self.questionsNum = questionsNum
+        self.presenter = QuizResultPresenter(router: router)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -37,16 +37,19 @@ class QuizResultViewController: UIViewController {
         gradientLayer.frame = view.bounds
         view.layer.insertSublayer(gradientLayer, at: 0)
         
-        quizResultView = QuizResultView(frame: view.bounds, score: "\(correct)/\(questionsNum)")
+        quizResultView = QuizResultView(score: "\(correct)/\(questionsNum)")
         view.addSubview(quizResultView)
         
         quizResultView.finishButton.addTarget(self, action: #selector(QuizResultViewController.buttonPressed(_:)), for: .touchUpInside)
+        
+        quizResultView.snp.makeConstraints{
+            $0.top.bottom.leading.trailing.equalToSuperview()
+        }
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         gradientLayer.frame = view.bounds
-        quizResultView.frame = view.bounds
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -59,6 +62,6 @@ class QuizResultViewController: UIViewController {
     }
     
     @objc func buttonPressed(_ button: UIButton){
-        router.returnToRootViewController()
+        presenter.changeViewController()
     }
 }

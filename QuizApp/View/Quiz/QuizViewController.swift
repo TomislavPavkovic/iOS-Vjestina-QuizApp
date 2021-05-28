@@ -52,13 +52,16 @@ class QuizViewController: UIViewController {
         gradientLayer.frame = view.bounds
         view.layer.addSublayer(gradientLayer)
         
-        quizView = QuizView(frame: view.frame, text: question.question, answers: question.answers, questionsNum: quiz.questions.count)
+        quizView = QuizView(text: question.question, answers: question.answers, questionsNum: quiz.questions.count)
         view.addSubview(quizView)
+        
+        quizView.snp.makeConstraints{
+            $0.top.bottom.leading.trailing.equalToSuperview()
+        }
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         gradientLayer.frame = view.bounds
-        quizView.frame = view.bounds
     }
     
     @objc func buttonPressed(_ button: UIButton){
@@ -83,8 +86,8 @@ class QuizViewController: UIViewController {
             }
         } else {
             let end = DispatchTime.now()
+            presenter.sendResults(quizId: quiz.id, start: start, end: end, correct: correct)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.presenter.sendResults(quizId: self.quiz.id, start: self.start, end: end, correct: self.correct)
                 self.presenter.changeViewController(correct: self.correct, questionsNum: self.quiz.questions.count)
             }
         }

@@ -17,12 +17,10 @@ class QuizzesViewController: UIViewController {
     private var categories: [QuizCategory] = []
     private var cellId: Int = 0
     private var gradientLayer: CAGradientLayer!
-    private var router: AppRouter!
     private var presenter: QuizzesPresenter!
     
     convenience init(router: AppRouter) {
         self.init()
-        self.router = router
         presenter = QuizzesPresenter(router: router)
     }
     
@@ -50,14 +48,15 @@ class QuizzesViewController: UIViewController {
         gradientLayer.frame = view.bounds
         view.layer.addSublayer(gradientLayer)
         view.addSubview(quizzesView)
-        quizzesView.frame = view.bounds
+        quizzesView.snp.makeConstraints{
+            $0.top.bottom.leading.trailing.equalToSuperview()
+        }
         
         tabBarController?.navigationItem.titleView = quizzesView.label
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         gradientLayer.frame = view.bounds
-        quizzesView.frame = view.bounds
     }
 }
 
@@ -93,12 +92,6 @@ extension QuizzesViewController: UITableViewDataSource {
         return categories[section].rawValue
     }
     
-    //neuspješan pokušaj mijenjanja boje section header-a
-    /*func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-            let header = view as! UITableViewHeaderFooterView
-            header.backgroundView?.backgroundColor = .clear
-            header.textLabel?.textColor = .white
-    }*/
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 25))
         returnedView.backgroundColor = .clear

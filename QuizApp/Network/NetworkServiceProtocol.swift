@@ -8,5 +8,5 @@
 import Foundation
 
 protocol NetworkServiceProtocol {
-    func executeUrlRequest(_ request: URLRequest, completionHandler: @escaping (Result<String, RequestError>) -> Void)
+    func executeUrlRequest<T: Decodable>(_ request: URLRequest, completionHandler: @escaping (Result<T, RequestError>) -> Void)
 }

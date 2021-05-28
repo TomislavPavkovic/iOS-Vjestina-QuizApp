@@ -8,11 +8,12 @@
 import Foundation
 
 class LoginPresenter {
-    private var networkService = NetworkService()
+    private var networkService: NetworkServiceProtocol!
     private var router: AppRouter!
     
-    init(router: AppRouter) {
+    init(router: AppRouter, networkService: NetworkServiceProtocol){
         self.router = router
+        self.networkService = networkService
     }
     
     func login(username: String, password: String, completion:@escaping (LoginStatus?)->()) {

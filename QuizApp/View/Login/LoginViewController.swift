@@ -53,12 +53,13 @@ class LoginViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         gradientLayer.frame = view.bounds
-        loginView.frame = view.bounds
     }
     
     private func buildViews() {
         view.addSubview(loginView)
-        loginView.frame = view.bounds
+        loginView.snp.makeConstraints {
+            $0.top.bottom.leading.trailing.equalToSuperview()
+        }
     }
     
     @objc func textFieldSelected(_ textField: TextField) {
@@ -83,7 +84,7 @@ class LoginViewController: UIViewController {
     }
     
     @objc func buttonPressed(_ button: UIButton) {
-        LoginPresenter(router: router).login(username: loginView.emailField.text!, password: loginView.passwordField.text!) { [self]
+        LoginPresenter(router: router, networkService: NetworkService()).login(username: loginView.emailField.text!, password: loginView.passwordField.text!) { [self]
             status in
             if let status = status {
                 switch status {
