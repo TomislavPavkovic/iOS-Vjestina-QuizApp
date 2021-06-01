@@ -12,7 +12,7 @@ import SnapKit
 class LoginView: UIView {
     var button: UIButton!
     private var label: UILabel!
-    var emailField: TextField!
+    var emailField: UITextField!
     var passwordField: UITextField!
     var errorLabel: UILabel!
     var visibleButton: UIButton!

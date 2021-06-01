@@ -6,10 +6,12 @@
 //
 
 import Foundation
+import Reachability
 
 class LoginPresenter {
     private var networkService: NetworkServiceProtocol!
     private var router: AppRouter!
+    private var reachability = Reachability(hostname: "https://iosquiz.herokuapp.com/api")
     
     init(router: AppRouter, networkService: NetworkServiceProtocol){
         self.router = router
@@ -17,23 +19,28 @@ class LoginPresenter {
     }
     
     func login(username: String, password: String, completion:@escaping (LoginStatus?)->()) {
-        guard let url = URL(string: "https://iosquiz.herokuapp.com/api/session?username=\(username)&password=\(password)") else { return }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        networkService.executeUrlRequest(request) { (result: Result<LoginResponse,
-        RequestError>) in
-            switch result {
-            case .failure(let error):
-                print(error)
-                return completion(.error(1, "Request error"))
-            case .success(let value):
-                let userDefaults = UserDefaults.standard
-                userDefaults.set(value.token, forKey: "token")
-                userDefaults.set(value.userId, forKey: "userId")
-                self.router.showQuizzesViewControllerAsRoot()
-                return completion(.success)
+        if ((reachability?.isReachable()) != nil && reachability?.isReachable() == true) {
+            guard let url = URL(string: "https://iosquiz.herokuapp.com/api/session?username=\(username)&password=\(password)") else { return }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            networkService.executeUrlRequest(request) { (result: Result<LoginResponse,
+            RequestError>) in
+                switch result {
+                case .failure(let error):
+                    print(error)
+                    return completion(.error(1, "Request error"))
+                case .success(let value):
+                    let userDefaults = UserDefaults.standard
+                    userDefaults.set(value.token, forKey: "token")
+                    userDefaults.set(value.userId, forKey: "userId")
+                    self.router.showQuizzesViewControllerAsRoot()
+                    return completion(.success)
+                }
             }
+        }
+        else {
+            completion(.error(2, "No internet connection"))
         }
     }
     

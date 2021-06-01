@@ -1,16 +1,20 @@
 PODS:
+  - Reachability (3.2)
   - SnapKit (5.0.1)
 
 DEPENDENCIES:
+  - Reachability (~> 3.2)
   - SnapKit (~> 5.0.0)
 
 SPEC REPOS:
   trunk:
+    - Reachability
     - SnapKit
 
 SPEC CHECKSUMS:
+  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
 
-PODFILE CHECKSUM: ba046ca1c1043c057833ed0a27824c041d0a0d98
+PODFILE CHECKSUM: 0affca0d075eed2640d3d33375189bfdff210a20
 
 COCOAPODS: 1.10.1

@@ -19,16 +19,55 @@ class QuizzesViewController: UIViewController {
     private var gradientLayer: CAGradientLayer!
     private var presenter: QuizzesPresenter!
     
-    convenience init(router: AppRouter) {
+    convenience init(router: AppRouter, quizRepository: QuizRepository) {
         self.init()
-        presenter = QuizzesPresenter(router: router)
+        presenter = QuizzesPresenter(router: router, quizRepository: quizRepository)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         quizzesView = QuizzesView()
         buildViews()
-        quizzesView.button.addTarget(self , action: #selector(QuizzesViewController.buttonPressed(_:)), for: .touchUpInside)
+        quizzesView.errorLabel.isHidden = true
+        quizzesView.errorMessageLabel.isHidden = true
+        
+        cellId = 0
+        let result = presenter.fetchQuizzes() { [self] res in
+            quizzes = res.0
+            categories = res.1
+            catNum = res.2
+            DispatchQueue.main.async{
+                self.tableView.reloadData()
+                view.layoutIfNeeded()
+            }
+            quizzesView.factTextLabel.text = String(format: "%@ %d %@", "There are", quizzes.flatMap{$0}.flatMap{$0.questions}
+                        .filter{$0.question.contains("NBA")}
+                        .count, "questions that contain the word NBA")
+        }
+        quizzes = result?.0 ?? [[]]
+        categories = result?.1 ?? []
+        catNum = result?.2 ?? 0
+        
+        tableView = UITableView()
+        tableView.frame = view.bounds
+        view.addSubview(tableView)
+        tableView.snp.makeConstraints{
+            $0.top.equalTo(quizzesView.factTextLabel.snp.bottom).offset(15)
+            $0.leading.equalTo(view.safeAreaLayoutGuide)
+            $0.width.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+        tableView.delegate = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
+        tableView.dataSource = self
+        tableView.layer.backgroundColor = UIColor.clear.cgColor
+        tableView.rowHeight = 150
+    
+        quizzesView.funFactLabel.isHidden = false
+        quizzesView.factTextLabel.text = String(format: "%@ %d %@", "There are", quizzes.flatMap{$0}.flatMap{$0.questions}
+                    .filter{$0.question.contains("NBA")}
+                    .count, "questions that contain the word NBA")
+        quizzesView.factTextLabel.isHidden = false
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -78,13 +117,13 @@ extension QuizzesViewController: UITableViewDataSource {
         cell.selectionStyle = .none
         
         
-        if (cell.subviews.filter{$0 is QuizField}.count == 0) {
-            let field = QuizField(frame: self.accessibilityFrame, title: quizzes[indexPath.section][indexPath.row].title, desc: quizzes[indexPath.section][indexPath.row].description, lvl: quizzes[indexPath.section][indexPath.row].level, image: UIImage(named: "sport_quiz")!)
-            cell.addSubview(field)
-            field.snp.makeConstraints {
-                $0.top.leading.equalToSuperview().offset(10)
-                $0.bottom.trailing.equalToSuperview().offset(-10)
-            }
+        cell.subviews.forEach { $0.removeFromSuperview() }
+        
+        let field = QuizField(frame: self.accessibilityFrame, title: quizzes[indexPath.section][indexPath.row].title, desc: quizzes[indexPath.section][indexPath.row].description, lvl: quizzes[indexPath.section][indexPath.row].level, image: ((UIImage(data: quizzes[indexPath.section][indexPath.row].storedImageData ?? Data()) ?? UIImage(named: "sport_quiz"))!))
+        cell.addSubview(field)
+        field.snp.makeConstraints {
+            $0.top.leading.equalToSuperview().offset(10)
+            $0.bottom.trailing.equalToSuperview().offset(-10)
         }
         return cell
     }
@@ -103,45 +142,6 @@ extension QuizzesViewController: UITableViewDataSource {
         returnedView.addSubview(label)
 
         return returnedView
-    }
-    
-    @objc func buttonPressed(_ button: UIButton) {
-        quizzesView.errorLabel.isHidden = true
-        quizzesView.errorMessageLabel.isHidden = true
-        
-        cellId = 0
-        presenter.fetchQuizzes() { [self] result in
-            if let result = result {
-                quizzes = result.0
-                categories = result.1
-                catNum = result.2
-                
-                
-                if(tableView == nil){
-                    tableView = UITableView()
-                    tableView.frame = view.bounds
-                    view.addSubview(tableView)
-                    tableView.snp.makeConstraints{
-                        $0.top.equalTo(quizzesView.factTextLabel.snp.bottom).offset(15)
-                        $0.leading.equalTo(view.safeAreaLayoutGuide)
-                        $0.width.equalTo(view.safeAreaLayoutGuide)
-                        $0.bottom.equalTo(view.safeAreaLayoutGuide)
-                    }
-                    tableView.delegate = self
-                    tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
-                    tableView.dataSource = self
-                    tableView.layer.backgroundColor = UIColor.clear.cgColor
-                    tableView.rowHeight = 150
-                } else {
-                    tableView.reloadData()
-                }
-                quizzesView.funFactLabel.isHidden = false
-                quizzesView.factTextLabel.text = String(format: "%@ %d %@", "There are", quizzes.flatMap{$0}.flatMap{$0.questions}
-                            .filter{$0.question.contains("NBA")}
-                            .count, "questions that contain the word NBA")
-                quizzesView.factTextLabel.isHidden = false
-            }
-        }
     }
 }
 

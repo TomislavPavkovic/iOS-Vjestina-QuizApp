@@ -11,7 +11,6 @@ import SnapKit
 
 class QuizzesView: UIView {
     var label: UILabel!
-    var button: UIButton!
     var funFactLabel: UILabel!
     var factTextLabel: UILabel!
     var errorLabel: UILabel!
@@ -19,7 +18,6 @@ class QuizzesView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        //backgroundColor = .purple
         createViews()
         styleViews()
         defineLayoutForViews()
@@ -33,12 +31,6 @@ class QuizzesView: UIView {
         label = UILabel()
         label.text = "PopQuiz"
         self.addSubview(label)
-        
-        button = UIButton()
-        button.setTitle("Get Quiz", for: .normal)
-        button.setTitleColor(.purple, for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
-        self.addSubview(button)
         
         funFactLabel = UILabel()
         funFactLabel.text = "Fun Fact"
@@ -71,10 +63,6 @@ Please try again
         label.textColor = .white
         label.font = UIFont.boldSystemFont(ofSize: 30.0)
         
-        button.backgroundColor = .white
-        button.isEnabled = true
-        button.layer.cornerRadius = 20
-        
         funFactLabel.textColor = .white
         funFactLabel.font = UIFont.boldSystemFont(ofSize: 30.0)
         factTextLabel.textColor = .white
@@ -88,24 +76,14 @@ Please try again
     }
     
     private func defineLayoutForViews() {
-        button.snp.makeConstraints {
-            $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.top.equalTo(self.safeAreaLayoutGuide).offset(10)
-            $0.width.equalTo(safeAreaLayoutGuide).multipliedBy(0.8)
-            $0.height.equalTo(40)
-        }
-        /*label.snp.makeConstraints {
-            $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.centerY.equalTo(self.safeAreaLayoutGuide).multipliedBy(0.2)
-        }*/
         funFactLabel.snp.makeConstraints {
-            $0.top.equalTo(button.snp.bottom).offset(15)
-            $0.leading.equalTo(self.safeAreaLayoutGuide).offset(10)
+            $0.top.equalTo(safeAreaLayoutGuide)
+            $0.leading.equalTo(safeAreaLayoutGuide).offset(10)
         }
         factTextLabel.snp.makeConstraints {
             $0.top.equalTo(funFactLabel.snp.bottom).offset(5)
-            $0.leading.equalTo(self.safeAreaLayoutGuide).offset(10)
-            $0.trailing.equalTo(self.safeAreaLayoutGuide).offset(-10)
+            $0.leading.equalTo(safeAreaLayoutGuide).offset(10)
+            $0.trailing.equalTo(safeAreaLayoutGuide).offset(-10)
         }
         errorLabel.snp.makeConstraints{
             $0.center.equalToSuperview()

@@ -6,55 +6,49 @@
 //
 
 import Foundation
+import Reachability
 
 class QuizzesPresenter {
-    private var networkService = NetworkService()
     private var router: AppRouter!
+    private var quizRepository: QuizRepository!
+    private var reachability = Reachability(hostname: "https://iosquiz.herokuapp.com/api")
     
-    init(router: AppRouter) {
+    init(router: AppRouter, quizRepository: QuizRepository) {
         self.router = router
+        self.quizRepository = quizRepository
     }
     
-    func fetchQuizzes(completion:@escaping (([[Quiz]], [QuizCategory], Int)?)->()) {
-        
-        guard let url = URL(string: "https://iosquiz.herokuapp.com/api/quizzes") else { return }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        networkService.executeUrlRequest(request) { (result: Result<QuizArray,
-        RequestError>) in
-            switch result {
-            case .failure(let error):
-                print(error)
-                return completion(nil)
-            case .success(let value):
-                let categories = self.unique(source: value.quizzes.map{$0.category})
+    func fetchQuizzes(completion: @escaping ((([[Quiz]], [QuizCategory], Int))->())) -> ([[Quiz]], [QuizCategory], Int)? {
+        let quizzes1D = quizRepository.fetchLocalData()
+        if ((reachability?.isReachable()) != nil && reachability?.isReachable() == true) {
+            quizRepository.fetchRemoteData() { result in
+                let categories = Array(Set(result.map{$0.category}))
                 let catNum = categories.count
                 var quizzes:[[Quiz]] = Array(repeating: [], count: catNum)
                 var index = 0
                 for category in categories {
-                    quizzes[index].append(contentsOf: value.quizzes.filter{$0.category == category})
+                    quizzes[index].append(contentsOf: result.filter{$0.category == category})
                     index += 1
                 }
-                return completion((quizzes, categories, catNum))
+                completion((quizzes, categories, catNum))
             }
+        }
+        if (quizzes1D.isEmpty) {
+            return nil
+        } else {
+            let categories = Array(Set(quizzes1D.map{$0.category}))
+            let catNum = categories.count
+            var quizzes:[[Quiz]] = Array(repeating: [], count: catNum)
+            var index = 0
+            for category in categories {
+                quizzes[index].append(contentsOf: quizzes1D.filter{$0.category == category})
+                index += 1
+            }
+            return (quizzes, categories, catNum)
         }
     }
     
     func changeViewController(quiz: Quiz) {
         router.showQuizViewController(quiz: quiz)
     }
-    
-    func unique<S : Sequence, T : Hashable>(source: S) -> [T] where S.Iterator.Element == T {
-        var buffer = [T]()
-        var added = Set<T>()
-        for elem in source {
-            if !added.contains(elem) {
-                buffer.append(elem)
-                added.insert(elem)
-            }
-        }
-        return buffer
-    }
-    
 }

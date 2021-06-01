@@ -6,5 +6,5 @@ target 'QuizApp' do
   use_frameworks!
   pod 'SnapKit', '~> 5.0.0'
   # Pods for QuizApp
-
+  pod 'Reachability', '~> 3.2'
 end

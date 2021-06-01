@@ -91,6 +91,12 @@ class LoginViewController: UIViewController {
                 case .success:
                     print("Email: ", loginView.emailField.text!)
                     print("Password: ", loginView.passwordField.text!)
+                    break
+                case .error(2, "No internet connection"):
+                    print(status)
+                    loginView.errorLabel.text = "No internet connection!"
+                    loginView.errorLabel.isHidden = false
+                    break
                 default:
                     print(status)
                     loginView.errorLabel.text = "Email or password is incorrect!"
