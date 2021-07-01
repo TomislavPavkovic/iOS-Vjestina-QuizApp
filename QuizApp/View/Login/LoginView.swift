@@ -11,8 +11,8 @@ import SnapKit
 
 class LoginView: UIView {
     var button: UIButton!
-    private var label: UILabel!
-    var emailField: TextField!
+    var label: UILabel!
+    var emailField: UITextField!
     var passwordField: UITextField!
     var errorLabel: UILabel!
     var visibleButton: UIButton!
@@ -53,10 +53,7 @@ class LoginView: UIView {
     
     private func styleViews() {
         label.textColor = .white
-        label.font = UIFont.boldSystemFont(ofSize: 40.0)
-        
         button.backgroundColor = .white
-        button.alpha = 0.6
         button.isEnabled = false
         button.layer.cornerRadius = 20
         
@@ -82,29 +79,20 @@ class LoginView: UIView {
     private func defineLayoutForViews() {
         
         button.snp.makeConstraints {
-            $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.width.equalTo(self.safeAreaLayoutGuide).multipliedBy(0.8)
+            $0.width.equalTo(safeAreaLayoutGuide).multipliedBy(0.8)
             $0.height.equalTo(40)
-            $0.top.equalTo(passwordField.snp.bottom).offset(15)
-        }
-        label.snp.makeConstraints {
-            $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.centerY.equalTo(emailField.snp.top).multipliedBy(0.5)
         }
         emailField.snp.makeConstraints {
-            $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.width.equalTo(self.safeAreaLayoutGuide).multipliedBy(0.8)
+            $0.width.equalTo(safeAreaLayoutGuide).multipliedBy(0.8)
             $0.height.equalTo(40)
-            $0.bottom.equalTo(passwordField.snp.top).offset(-15)
         }
         passwordField.snp.makeConstraints {
-            $0.width.equalTo(self.safeAreaLayoutGuide).multipliedBy(0.8)
+            $0.width.equalTo(safeAreaLayoutGuide).multipliedBy(0.8)
             $0.height.equalTo(40)
-            $0.center.equalTo(self.safeAreaLayoutGuide)
         }
         errorLabel.snp.makeConstraints {
-            $0.centerX.equalTo(self.safeAreaLayoutGuide)
-            $0.width.equalTo(self.safeAreaLayoutGuide).multipliedBy(0.8)
+            $0.centerX.equalTo(safeAreaLayoutGuide)
+            $0.width.equalTo(safeAreaLayoutGuide).multipliedBy(0.8)
             $0.height.equalTo(40)
             $0.top.equalTo(button.snp.bottom).offset(15)
         }
@@ -114,6 +102,5 @@ class LoginView: UIView {
             $0.centerY.equalTo(passwordField.snp.centerY)
             $0.width.equalTo(30)
         }
-        
     }
 }

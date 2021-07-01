@@ -21,12 +21,19 @@ class AppRouter: AppRouterProtocol {
     }
     
     func showQuizzesViewControllerAsRoot() {
-        let quizzesVC = QuizzesViewController(router: self)
-        quizzesVC.tabBarItem = UITabBarItem(title: "Quiz", image: UIImage(named: "grid-three-up-24.png"), selectedImage: UIImage(named: "grud-three-up-24.png"))
+        let coreDataContext = CoreDataStack(modelName: "QuizCD").managedContext
+        let quizDatabaseDataSource = QuizDatabaseDataSource(coreDataContext: coreDataContext)
+        let quizNetworkDataSource = QuizNetworkDataSource()
+        let quizRepository = QuizRepository(networkDataSource: quizNetworkDataSource, databaseDataSource: quizDatabaseDataSource)
+        
+        let quizzesVC = QuizzesViewController(router: self, quizRepository: quizRepository)
+        let searchQuizVC = SearchQuizViewController(router: self, quizRepository: quizRepository)
+        quizzesVC.tabBarItem = UITabBarItem(title: "Quiz", image: UIImage(named: "quizzes-1.png"), selectedImage: UIImage(named: "quizzes.png"))
+        searchQuizVC.tabBarItem = UITabBarItem(title: "Search", image: UIImage(named: "search-1.png"), selectedImage: UIImage(named: "search.png"))
         let settingsVC = SettingsViewController(router: self)
-        settingsVC.tabBarItem = UITabBarItem(title: "Settings", image: UIImage(named: "settings-17-24.png"), selectedImage: UIImage(named: "settings-17-24.png"))
+        settingsVC.tabBarItem = UITabBarItem(title: "Settings", image: UIImage(named: "Settings-1.png"), selectedImage: UIImage(named: "Settings.png"))
         let tabBarController = UITabBarController()
-        tabBarController.viewControllers = [quizzesVC, settingsVC]
+        tabBarController.viewControllers = [quizzesVC,searchQuizVC, settingsVC]
         navigationController.setViewControllers([tabBarController], animated: true)
     }
     func showQuizViewController(quiz: Quiz) {
